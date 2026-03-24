@@ -1,0 +1,9 @@
+# raw data
+star/
+data/derived/
+reference/
+
+# R junk
+.Rhistory
+.RData
+.Rproj.user/
