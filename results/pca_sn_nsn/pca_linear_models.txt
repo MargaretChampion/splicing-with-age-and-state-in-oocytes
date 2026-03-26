@@ -1,0 +1,186 @@
+PCA linear model summaries
+==========================
+
+Samples in full PCA: 87
+Samples in NSN-only PCA: 20
+
+Full dataset: PC1 ~ predicted_configuration
+
+Call:
+lm(formula = PC1 ~ predicted_configuration, data = pca_all_df)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-17.9799  -4.3182   0.2071   4.6685  13.0001 
+
+Coefficients:
+                          Estimate Std. Error t value Pr(>|t|)    
+(Intercept)                 16.296      1.472   11.07   <2e-16 ***
+predicted_configurationSN  -21.413      1.681  -12.74   <2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 6.585 on 84 degrees of freedom
+  (1 observation deleted due to missingness)
+Multiple R-squared:  0.6589,	Adjusted R-squared:  0.6549 
+F-statistic: 162.3 on 1 and 84 DF,  p-value: < 2.2e-16
+
+
+
+Full dataset: PC1 ~ age_group
+
+Call:
+lm(formula = PC1 ~ age_group, data = pca_all_df)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-21.103  -7.584  -1.511   5.566  30.858 
+
+Coefficients:
+             Estimate Std. Error t value Pr(>|t|)  
+(Intercept)     2.136      1.711   1.249   0.2152  
+age_groupold   -4.130      2.379  -1.736   0.0861 .
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 11.09 on 85 degrees of freedom
+Multiple R-squared:  0.03425,	Adjusted R-squared:  0.02289 
+F-statistic: 3.015 on 1 and 85 DF,  p-value: 0.08614
+
+
+
+Full dataset: PC1 ~ predicted_configuration + age_group
+
+Call:
+lm(formula = PC1 ~ predicted_configuration + age_group, data = pca_all_df)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-16.9555  -4.6558  -0.2275   4.9823  13.9200 
+
+Coefficients:
+                          Estimate Std. Error t value Pr(>|t|)    
+(Intercept)                 17.197      1.566  10.983   <2e-16 ***
+predicted_configurationSN  -21.085      1.679 -12.561   <2e-16 ***
+age_groupold                -2.254      1.419  -1.589    0.116    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 6.526 on 83 degrees of freedom
+  (1 observation deleted due to missingness)
+Multiple R-squared:  0.669,	Adjusted R-squared:  0.661 
+F-statistic: 83.88 on 2 and 83 DF,  p-value: < 2.2e-16
+
+
+
+Full dataset: PC2 ~ predicted_configuration
+
+Call:
+lm(formula = PC2 ~ predicted_configuration, data = pca_all_df)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-20.126  -2.872   1.016   3.639  10.031 
+
+Coefficients:
+                          Estimate Std. Error t value Pr(>|t|)  
+(Intercept)                  2.538      1.268   2.002   0.0486 *
+predicted_configurationSN   -2.298      1.447  -1.588   0.1161  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 5.67 on 84 degrees of freedom
+  (1 observation deleted due to missingness)
+Multiple R-squared:  0.02913,	Adjusted R-squared:  0.01757 
+F-statistic:  2.52 on 1 and 84 DF,  p-value: 0.1161
+
+
+
+Full dataset: PC2 ~ age_group
+
+Call:
+lm(formula = PC2 ~ age_group, data = pca_all_df)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-64.388  -2.780  -0.285   4.486  12.671 
+
+Coefficients:
+             Estimate Std. Error t value Pr(>|t|)  
+(Intercept)     2.383      1.381   1.725   0.0881 .
+age_groupold   -4.606      1.920  -2.399   0.0186 *
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 8.951 on 85 degrees of freedom
+Multiple R-squared:  0.0634,	Adjusted R-squared:  0.05238 
+F-statistic: 5.754 on 1 and 85 DF,  p-value: 0.01864
+
+
+
+Full dataset: PC2 ~ predicted_configuration + age_group
+
+Call:
+lm(formula = PC2 ~ predicted_configuration + age_group, data = pca_all_df)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-18.7855  -3.2660  -0.0973   3.5417  11.3713 
+
+Coefficients:
+                          Estimate Std. Error t value Pr(>|t|)   
+(Intercept)                  3.717      1.321   2.814  0.00611 **
+predicted_configurationSN   -1.869      1.416  -1.319  0.19063   
+age_groupold                -2.949      1.197  -2.464  0.01582 * 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 5.507 on 83 degrees of freedom
+  (1 observation deleted due to missingness)
+Multiple R-squared:  0.09529,	Adjusted R-squared:  0.07349 
+F-statistic: 4.371 on 2 and 83 DF,  p-value: 0.01567
+
+
+
+NSN-only dataset: PC1 ~ age_group
+
+Call:
+lm(formula = PC1 ~ age_group, data = pca_nsn_df)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-18.276  -6.249  -1.688   6.274  23.726 
+
+Coefficients:
+             Estimate Std. Error t value Pr(>|t|)  
+(Intercept)    -3.554      2.971  -1.196   0.2472  
+age_groupold    8.884      4.698   1.891   0.0748 .
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 10.29 on 18 degrees of freedom
+Multiple R-squared:  0.1657,	Adjusted R-squared:  0.1194 
+F-statistic: 3.576 on 1 and 18 DF,  p-value: 0.07482
+
+
+
+NSN-only dataset: PC2 ~ age_group
+
+Call:
+lm(formula = PC2 ~ age_group, data = pca_nsn_df)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-14.3318  -9.9671  -0.5036   7.3199  18.0425 
+
+Coefficients:
+             Estimate Std. Error t value Pr(>|t|)
+(Intercept)     2.404      2.789   0.862     0.40
+age_groupold   -6.011      4.410  -1.363     0.19
+
+Residual standard error: 9.661 on 18 degrees of freedom
+Multiple R-squared:  0.09356,	Adjusted R-squared:  0.04321 
+F-statistic: 1.858 on 1 and 18 DF,  p-value: 0.1897
+
+
+
