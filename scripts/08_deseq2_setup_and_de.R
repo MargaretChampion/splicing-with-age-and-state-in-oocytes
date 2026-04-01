@@ -170,3 +170,7 @@ message("DESeq2 complete.")
 message("Results written to: ", res_out)
 message("Normalized counts written to: ", norm_counts_out)
 message("Prefilter summary written to: ", prefilter_summary_out)
+
+
+###--- now we take state into account -- ##
+

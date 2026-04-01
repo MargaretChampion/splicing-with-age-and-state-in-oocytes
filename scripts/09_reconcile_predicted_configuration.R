@@ -96,6 +96,16 @@ supplement <- readr::read_csv(
 ) %>%
   janitor::clean_names()
 
+supplement <- readr::read_csv(
+  supplement_file,
+  col_types = cols(.default = col_character())
+) %>%
+  janitor::clean_names()
+
+# sanity check on the SAME object used downstream
+message("Supplement configuration counts:")
+print(table(supplement$predicted_configuration, useNA = "ifany"))
+
 gsm_reconcile <- readr::read_csv(
   gsm_file,
   col_types = cols(.default = col_character())
@@ -312,3 +322,9 @@ if ("predicted_configuration" %in% names(merged_meta)) {
 }
 
 message("Done.")
+
+#---------------
+## validate that metadata matches
+
+table(merged_meta$predicted_configuration, useNA = "ifany")
+
