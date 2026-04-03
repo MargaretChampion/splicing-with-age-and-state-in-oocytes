@@ -1,6 +1,10 @@
 # raw data
 star/
 data/derived/
+data/derived/*
+!data/derived/metadata/
+!data/derived/metadata/*
+
 reference/
 
 # R junk

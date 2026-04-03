@@ -1,6 +1,6 @@
 age_group	predicted_configuration	n
-young	NSN	12
-young	SN	30
-old	NSN	8
-old	SN	36
+young	NSN	30
+young	SN	12
+old	NSN	36
+old	SN	8
 old	NA	1

@@ -1,0 +1,7 @@
+RI debug outputs generated.
+
+Next questions:
+1. What exact columns in SpliceFeature$RI define intron coordinates?
+2. Can coord.intron be built directly from SpliceFeature$RI?
+3. What file/object shape does ComputePSI.RI expect for IntronCounts?
+4. Is PrepareBedFile.RI salvageable, or easier to recreate manually?

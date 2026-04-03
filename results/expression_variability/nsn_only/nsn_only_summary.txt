@@ -1,0 +1,5 @@
+Subset: nsn_only
+n young: 30
+n old: 36
+genes tested: 13688
+significant DV genes (FDR < 0.05 and |log2 var ratio| > 0.5): 15
