@@ -619,6 +619,42 @@ marvel.fixed <- ComputePSI(
 saveRDS(marvel.fixed, file = file.path(out_dir, "rds", "marvel_se_quantified_fixed.rds"))
 
 
+
+run_compare <- function(marvel_obj, g1_ids, g2_ids, label) {
+  message("Running differential splicing: ", label)
+  
+  out <- CompareValues(
+    MarvelObject = marvel_obj,
+    cell.group.g1 = g1_ids,
+    cell.group.g2 = g2_ids,
+    min.cells = min_cells,
+    method = compare_method,
+    method.adjust = adjust_method,
+    level = "splicing",
+    event.type = "SE",
+    show.progress = TRUE,
+    assign.modality = TRUE
+  )
+  
+  saveRDS(out, file = file.path(out_dir, "rds", paste0(label, ".rds")))
+  
+  de_tbl <- out$DE$PSI$Table[[compare_method]]
+  
+  if (is.null(de_tbl)) {
+    stop("No DE PSI table returned for comparison: ", label)
+  }
+  
+  save_splicing_results(
+    df = de_tbl,
+    prefix = label,
+    out_dir = file.path(out_dir, "tables"),
+    delta_cutoffs = delta_cutoffs
+  )
+  
+  invisible(out)
+}
+
+
 # # -----------------------------
 # # compute PSI -- for the old block not the one that runs
 # # -----------------------------
@@ -652,6 +688,12 @@ saveRDS(marvel.fixed, file = file.path(out_dir, "rds", "marvel_se_quantified_fix
 # }
 # 
 # saveRDS(marvel, file = file.path(out_dir, "rds", "marvel_with_psi.rds"))
+
+# -- no seriously do not uncomment this --###
+
+##---- read RDS ----##
+fixed_marvel_object <- readRDS("/home/margaret/Documents/mouse_oocyte_project/results/marvel/rds/marvel_se_quantified_fixed.rds")
+
 
 
 # -----------------------------
@@ -687,7 +729,7 @@ run_compare <- function(marvel_obj, g1_ids, g2_ids, label) {
     method = compare_method,
     method.adjust = adjust_method,
     level = "splicing",
-    event.type = event_types,
+    event.type = "SE",
     show.progress = TRUE,
     assign.modality = TRUE
   )
@@ -713,16 +755,19 @@ run_compare <- function(marvel_obj, g1_ids, g2_ids, label) {
 # -----------------------------
 # run comparisons
 # -----------------------------
+
 marvel_all <- run_compare(
-  marvel_obj = marvel,
+  marvel_obj = fixed_marvel_object,
   g1_ids = old_ids,
   g2_ids = young_ids,
   label = "marvel_all_old_vs_young"
 )
 
+
+
 if (length(old_nsn_ids) >= min_cells && length(young_nsn_ids) >= min_cells) {
   marvel_nsn <- run_compare(
-    marvel_obj = marvel,
+    marvel_obj = fixed_marvel_object,
     g1_ids = old_nsn_ids,
     g2_ids = young_nsn_ids,
     label = "marvel_nsn_old_vs_young"
@@ -753,3 +798,322 @@ try({
 }, silent = TRUE)
 
 message("Done.")
+
+## save loose top candidates ##
+
+extract_se_candidates <- function(compare_obj, label, min_delta) {
+  de_tbl <- compare_obj$DE$PSI$Table[[compare_method]]
+  
+  out <- de_tbl %>%
+    filter(p.val < 0.05, abs(mean.diff) >= min_delta) %>%
+    arrange(p.val)
+  
+  write_tsv(
+    out,
+    file.path(
+      out_dir,
+      "tables",
+      paste0(label, "_nominal_p_lt_0p05_absDeltaPSI_ge_", min_delta, ".tsv")
+    )
+  )
+  
+  out
+}
+
+top_se_candidates_loose_all <- extract_se_candidates(
+  compare_obj = marvel_all,
+  label = "marvel_all_old_vs_young",
+  min_delta = 5
+)
+
+top_se_candidates_loose_nsn <- extract_se_candidates(
+  compare_obj = marvel_nsn,
+  label = "marvel_nsn_old_vs_young",
+  min_delta = 5
+)
+
+
+# -----------------------------
+# prepare candidate tables
+# -----------------------------
+library(dplyr)
+library(readr)
+library(tidyr)
+library(tibble)
+all_tbl <- top_se_candidates_loose_all %>%
+  mutate(comparison = "all_old_vs_young")
+
+nsn_tbl <- top_se_candidates_loose_nsn %>%
+  mutate(comparison = "nsn_old_vs_young")
+
+# -----------------------------
+# event membership
+# -----------------------------
+all_event_keys <- all_tbl %>%
+  distinct(tran_id) %>%
+  mutate(in_all = TRUE)
+
+nsn_event_keys <- nsn_tbl %>%
+  distinct(tran_id) %>%
+  mutate(in_nsn = TRUE)
+
+event_membership <- full_join(all_event_keys, nsn_event_keys, by = "tran_id") %>%
+  mutate(
+    in_all = if_else(is.na(in_all), FALSE, in_all),
+    in_nsn = if_else(is.na(in_nsn), FALSE, in_nsn),
+    overlap_class = case_when(
+      in_all & in_nsn ~ "shared",
+      in_all & !in_nsn ~ "all_only",
+      !in_all & in_nsn ~ "nsn_only",
+      TRUE ~ "unclassified"
+    )
+  )
+
+# -----------------------------
+# representative rows from each comparison
+# -----------------------------
+all_rep <- all_tbl %>%
+  select(
+    tran_id, gene_id, gene_short_name, exon.1, exon.2, exon.3,
+    mean.diff, p.val, p.val.adj, n.cells.g1, n.cells.g2
+  ) %>%
+  rename(
+    gene_id.all = gene_id,
+    gene_short_name.all = gene_short_name,
+    exon.1.all = exon.1,
+    exon.2.all = exon.2,
+    exon.3.all = exon.3,
+    mean.diff.all = mean.diff,
+    p.val.all = p.val,
+    p.val.adj.all = p.val.adj,
+    n.cells.g1.all = n.cells.g1,
+    n.cells.g2.all = n.cells.g2
+  )
+
+nsn_rep <- nsn_tbl %>%
+  select(
+    tran_id, gene_id, gene_short_name, exon.1, exon.2, exon.3,
+    mean.diff, p.val, p.val.adj, n.cells.g1, n.cells.g2
+  ) %>%
+  rename(
+    gene_id.nsn = gene_id,
+    gene_short_name.nsn = gene_short_name,
+    exon.1.nsn = exon.1,
+    exon.2.nsn = exon.2,
+    exon.3.nsn = exon.3,
+    mean.diff.nsn = mean.diff,
+    p.val.nsn = p.val,
+    p.val.adj.nsn = p.val.adj,
+    n.cells.g1.nsn = n.cells.g1,
+    n.cells.g2.nsn = n.cells.g2
+  )
+
+# -----------------------------
+# combined event table
+# -----------------------------
+combined_event_table <- event_membership %>%
+  left_join(all_rep, by = "tran_id") %>%
+  left_join(nsn_rep, by = "tran_id") %>%
+  mutate(
+    gene_id = coalesce(gene_id.nsn, gene_id.all),
+    gene_short_name = coalesce(gene_short_name.nsn, gene_short_name.all),
+    exon.1 = coalesce(exon.1.nsn, exon.1.all),
+    exon.2 = coalesce(exon.2.nsn, exon.2.all),
+    exon.3 = coalesce(exon.3.nsn, exon.3.all)
+  ) %>%
+  select(
+    tran_id, overlap_class, in_all, in_nsn,
+    gene_id, gene_short_name, exon.1, exon.2, exon.3,
+    mean.diff.all, p.val.all, p.val.adj.all, n.cells.g1.all, n.cells.g2.all,
+    mean.diff.nsn, p.val.nsn, p.val.adj.nsn, n.cells.g1.nsn, n.cells.g2.nsn
+  ) %>%
+  arrange(
+    factor(overlap_class, levels = c("shared", "nsn_only", "all_only")),
+    coalesce(p.val.nsn, p.val.all)
+  )
+
+# -----------------------------
+# gene-level summary
+# -----------------------------
+combined_gene_table <- combined_event_table %>%
+  mutate(
+    gene_short_name = if_else(
+      is.na(gene_short_name) | gene_short_name == "",
+      gene_id,
+      gene_short_name
+    )
+  ) %>%
+  group_by(gene_id, gene_short_name) %>%
+  summarise(
+    n_events_total = n(),
+    n_shared = sum(overlap_class == "shared"),
+    n_nsn_only = sum(overlap_class == "nsn_only"),
+    n_all_only = sum(overlap_class == "all_only"),
+    best_p_all = suppressWarnings(min(p.val.all, na.rm = TRUE)),
+    best_p_nsn = suppressWarnings(min(p.val.nsn, na.rm = TRUE)),
+    max_abs_delta_all = suppressWarnings(max(abs(mean.diff.all), na.rm = TRUE)),
+    max_abs_delta_nsn = suppressWarnings(max(abs(mean.diff.nsn), na.rm = TRUE)),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    best_p_all = ifelse(is.infinite(best_p_all), NA, best_p_all),
+    best_p_nsn = ifelse(is.infinite(best_p_nsn), NA, best_p_nsn),
+    max_abs_delta_all = ifelse(is.infinite(max_abs_delta_all), NA, max_abs_delta_all),
+    max_abs_delta_nsn = ifelse(is.infinite(max_abs_delta_nsn), NA, max_abs_delta_nsn)
+  ) %>%
+  arrange(desc(n_shared), desc(n_nsn_only), desc(n_all_only), best_p_nsn, best_p_all)
+
+# -----------------------------
+# save
+# -----------------------------
+write_tsv(
+  combined_event_table,
+  file.path(out_dir, "tables", "se_candidates_combined_all_vs_nsn_event_table.tsv")
+)
+
+write_tsv(
+  combined_gene_table,
+  file.path(out_dir, "tables", "se_candidates_combined_all_vs_nsn_gene_table.tsv")
+)
+
+# -----------------------------
+# quick checks
+# -----------------------------
+table(combined_event_table$overlap_class)
+head(combined_event_table)
+head(combined_gene_table)
+
+
+#-----------
+# plotting 
+#-----------
+
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(tibble)
+library(readr)
+
+
+
+# -----------------------------
+# helper: extract PSI matrix in a safe format
+# -----------------------------
+# PSI matrix
+psi_se <- fixed_marvel_object$PSI$SE %>%
+  as.data.frame() %>%
+  tibble::as_tibble()
+
+# -----------------------------
+# helper: make long plot table for one event
+# -----------------------------
+make_event_plot_df <- function(target_tran_id, psi_df, meta_df) {
+  row <- psi_df %>% filter(.data$tran_id == .env$target_tran_id)
+  
+  if (nrow(row) != 1) {
+    stop("Could not uniquely find tran_id: ", target_tran_id, " | matches: ", nrow(row))
+  }
+  
+  row %>%
+    select(-tran_id) %>%
+    pivot_longer(
+      cols = everything(),
+      names_to = "sample.id",
+      values_to = "psi"
+    ) %>%
+    left_join(meta_df, by = "sample.id") %>%
+    mutate(
+      age_group = factor(age_group, levels = c("young", "old")),
+      predicted_configuration = as.character(predicted_configuration),
+      group_all = age_group,
+      group_nsn = case_when(
+        predicted_configuration == "NSN" & age_group == "young" ~ "young_NSN",
+        predicted_configuration == "NSN" & age_group == "old" ~ "old_NSN",
+        TRUE ~ NA_character_
+      )
+    )
+}
+### test if fix works ##
+test_df <- make_event_plot_df(
+  target_tran_id = test_event,
+  psi_df = psi_se,
+  meta_df = meta
+)
+
+head(test_df)
+
+# function for plotting##
+plot_one_event <- function(target_tran_id, psi_df, meta_df, label_df = combined_event_table, out_dir = out_dir) {
+  plot_df <- make_event_plot_df(target_tran_id = target_tran_id, psi_df = psi_df, meta_df = meta_df)
+  
+  ann <- label_df %>%
+    filter(.data$tran_id == .env$target_tran_id) %>%
+    slice(1)
+  
+  gene_label <- if (nrow(ann) == 0 || is.na(ann$gene_short_name[1])) target_tran_id else ann$gene_short_name[1]
+  overlap_label <- if (nrow(ann) == 0) "unknown" else ann$overlap_class[1]
+  
+  p_all <- plot_df %>%
+    filter(!is.na(group_all)) %>%
+    ggplot(aes(x = group_all, y = psi)) +
+    geom_boxplot(outlier.shape = NA, width = 0.55) +
+    geom_jitter(width = 0.12, height = 0, alpha = 0.8) +
+    labs(
+      title = paste0(gene_label, " | all old vs young"),
+      subtitle = paste0(overlap_label, " | ", target_tran_id),
+      x = NULL,
+      y = "PSI"
+    ) +
+    theme_bw(base_size = 11)
+  
+  p_nsn <- plot_df %>%
+    filter(!is.na(group_nsn)) %>%
+    ggplot(aes(x = group_nsn, y = psi)) +
+    geom_boxplot(outlier.shape = NA, width = 0.55) +
+    geom_jitter(width = 0.12, height = 0, alpha = 0.8) +
+    labs(
+      title = paste0(gene_label, " | NSN old vs young"),
+      subtitle = paste0(overlap_label, " | ", target_tran_id),
+      x = NULL,
+      y = "PSI"
+    ) +
+    theme_bw(base_size = 11)
+  
+  safe_gene <- gsub("[^A-Za-z0-9_\\-]", "_", gene_label)
+  safe_tran <- gsub("[^A-Za-z0-9_\\-]", "_", substr(target_tran_id, 1, 80))
+  
+  ggsave(
+    filename = file.path(out_dir, "tables", paste0("plot_all_", safe_gene, "_", safe_tran, ".png")),
+    plot = p_all,
+    width = 5.5,
+    height = 4.2,
+    dpi = 300
+  )
+  
+  ggsave(
+    filename = file.path(out_dir, "tables", paste0("plot_nsn_", safe_gene, "_", safe_tran, ".png")),
+    plot = p_nsn,
+    width = 5.5,
+    height = 4.2,
+    dpi = 300
+  )
+  
+  list(
+    plot_all = p_all,
+    plot_nsn = p_nsn,
+    data = plot_df
+  )
+}
+
+plot_results <- lapply(events_to_plot, function(x) {
+  message("Plotting: ", x)
+  plot_one_event(
+    target_tran_id = x,
+    psi_df = psi_se,
+    meta_df = meta,
+    label_df = combined_event_table,
+    out_dir = out_dir
+  )
+})
+
+names(plot_results) <- events_to_plot
