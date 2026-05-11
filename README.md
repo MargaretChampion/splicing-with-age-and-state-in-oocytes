@@ -15,6 +15,9 @@ This project currently focuses on event-level splicing quantification and differ
 - At the level of skipped-exon (SE) events, the current analysis identifies a small set of moderate-confidence candidate events, but does not support a strong global shift in splicing patterns with either age or chromatin state. This may reflect partial masking by cell-state heterogeneity in aggregate comparisons, or that skipped-exon variation is not a dominant axis of transcriptomic variation in these oocytes under the conditions analyzed.
 - That said, skipped exons represent only one class of alternative splicing events. Analysis of additional event types (A5/A3 and intron retention) is ongoing, and may reveal patterns not captured in the SE analysis.
 
+- ###### additional analysis ###
+- I used a published NSN/SN transcriptomic signature defined in an independent dataset and projected it onto the oocyte transcriptomes as a state score prior to downstream classification analyses. The resulting signature scores cleanly recapitulated the previously reported SN/NSN classifications within the dataset, validating the reconstructed chromatin-state assignments. Consistent with both the original study and downstream expression analyses, chromatin configuration emerged as a dominant axis of transcriptomic variation, while age-associated structure remained detectable but substantially weaker.
+
 ## Current workflow status
 
 - **SE (skipped exon):** stable and analyzed
