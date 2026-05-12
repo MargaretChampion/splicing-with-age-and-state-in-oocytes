@@ -17,3 +17,10 @@ reference/
 .~lock*
 github_token
 mouse_splicing_token
+
+.RDataTmp*
+.RData
+.Rhistory
+.~lock*
+github_token
+mouse_splicing_token
