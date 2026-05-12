@@ -23,6 +23,27 @@ This project currently focuses on event-level splicing quantification and differ
 
 That boundary is deliberate. The immediate goal is to stabilize RI and other event classes before extending the project into a more complete MARVEL-style analysis without carrying upstream instability into downstream interpretation.
 
+## Expression-state validation and lightweight classifier analysis
+
+Because NSN/SN chromatin configuration is a dominant transcriptomic axis in this dataset, I performed a lightweight supervised-learning analysis to test whether chromatin state and chronological age could be recovered from expression profiles, and whether age-associated signal collapsed onto NSN/SN-like transcriptional structure.
+
+| Model    | Prediction target | Feature set                      |
+| -------- | ----------------- | -------------------------------- |
+| Model 1A | NSN/SN            | Published NSN/SN signature genes |
+| Model 1B | NSN/SN            | Top 500 variable genes           |
+| Model 2  | Young/old         | Top 500 variable genes           |
+| Model 3  | Young/old         | Published NSN/SN signature genes |
+
+## Key findings
+Published NSN/SN transcriptional programs projected cleanly onto this dataset.
+NSN/SN chromatin configuration was highly predictable from transcriptome-wide expression.
+Transcriptome-wide age prediction was also highly accurate, including within NSN-only oocytes.
+Age-predictive features showed minimal overlap with the published NSN/SN signature.
+Age prediction using only NSN/SN signature genes performed substantially worse than transcriptome-wide age prediction.
+Interpretation
+
+These analyses support a model in which chromatin configuration is a dominant transcriptomic axis, while age-associated transcriptomic structure remains at least partially independent of the canonical NSN/SN state program.
+
 ## Repository structure
 
 ```text
