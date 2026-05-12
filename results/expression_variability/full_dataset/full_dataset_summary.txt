@@ -1,5 +1,0 @@
-Subset: full_dataset
-n young: 42
-n old: 45
-genes tested: 13688
-significant DV genes (FDR < 0.05 and |log2 var ratio| > 0.5): 11

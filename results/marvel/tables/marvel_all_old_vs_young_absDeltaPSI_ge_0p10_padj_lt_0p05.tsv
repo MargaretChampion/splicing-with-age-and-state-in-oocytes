@@ -1,1 +1,0 @@
-tran_id	event_type	gene_id	gene_short_name	gene_type	exon.1	exon.2	exon.3	n.cells.g1	n.cells.g2	mean.g1	mean.g2	mean.diff	statistic	p.val	p.val.adj	modality.bimodal.adj.g1	modality.bimodal.adj.g2	n.cells.outliers.g1	n.cells.outliers.g2	outliers
