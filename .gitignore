@@ -11,3 +11,9 @@ reference/
 .Rhistory
 .RData
 .Rproj.user/
+.RDataTmp*
+.RData
+.Rhistory
+.~lock*
+github_token
+mouse_splicing_token
